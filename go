@@ -1,30 +1,44 @@
+#!/bin/bash
+
 # TODO
-# * Add Bash TextMate bundle
-# * Add to Github
-# * Add a Readme.markdown
 # * Add a --help section
-# * Use flags instead of separate functions like `go --add recycling` and `go --list`
 
 DG_DIR="${HOME}/.go"
+PROJECTS_FILE="${DG_DIR}/projects"
 
-# Shows the list of saved projects.
-function show {
-  if [[ -r "${DG_DIR}/projects" ]]; then
-    cat "${DG_DIR}/projects"
+function usage() {
+  echo "
+Usage
+
+  go <project>             # go to project
+  go [-l|--list]           # list all projects
+  go [-a|--add] <project>  # add a new project at the current directory"
+}
+
+function go_add() {
+  if [[ ! -d "${DG_DIR}" ]]; then
+    mkdir -p "${DG_DIR}"
+  fi
+  local dir="$(pwd -L)"
+  echo "${PROJECT}"="${dir}" >> "${DG_DIR}/projects"
+  echo "Added ${PROJECT} for ${dir}"
+}
+
+function go_list() {
+  echo "Listing projects ...
+"
+
+  if [[ -r "${PROJECTS_FILE}" ]]; then
+    cat ${PROJECTS_FILE}
   else
     echo "You haven't added anything yet."
     return
   fi
 }
 
-# Goes to the directory and performs any commands.
-function go {
-  local name="${1}"
+function go_start() {
   local dir=''
-  if [[ -z "${name}" ]]; then
-    echo "You need to specify a name."
-    return
-  fi
+  local project=''
   if [[ ! -r "${DG_DIR}/projects" ]]; then
     echo "You haven't added anything yet."
     return
@@ -33,19 +47,22 @@ function go {
   for line in $(cat "${DG_DIR}/projects"); do
     IFS=$'\t'
     local -a line=(${line})
-    if [[ "${line[0]}" = "${name}" ]]; then
-      dir="${line[1]}"
+
+    project=`echo ${line} | cut -d "=" -f 1`
+    if [[ "${project}" = "${PROJECT}" ]]; then
+      dir=`echo ${line} | cut -d "=" -f 2`
     fi
   done
 
   if [[ ! -n "${dir}" ]]; then
-    echo "Couldn't find '${name}'"
+    echo "Couldn't find '${PROJECT}'"
     return
   fi
   if [[ ! -d "${dir}" ]]; then
     echo "No such directory: ${dir}"
   fi
 
+  echo "Go go gadget ${PROJECT}!!"
   cd "${dir}"
 
   if [[ -r .gorc ]]; then
@@ -53,17 +70,48 @@ function go {
   fi
 }
 
-# Adds the current directory to your list.
-function add {
-  local name="${1:-}"
-  if [[ -z "${name}" ]]; then
-    echo "You need to specify a name."
-    return
+function go() {
+  PROJECT=""
+  if [ ! ${1} ]; then
+    usage
   fi
-  if [[ ! -d "${DG_DIR}" ]]; then
-    mkdir -p "${DG_DIR}"
-  fi
-  local dir="$(pwd -L)"
-  echo "${name}"$'\t'"${dir}" >> "${DG_DIR}/projects"
-  echo "Added ${name} for ${dir}"
+  until [ -z "$1" ]; do
+    case $1 in
+      --list | -l )
+        shift
+        if [ "${1:1:0}" != "-" ]; then
+          if [ ! ${1} ]; then
+            go_list
+          else
+            echo "Unexpected argument: ${1}"
+            usage
+            exit
+          fi
+        fi;;
+      --add | -a )
+        shift
+        if [ "${1:1:0}" != "-" ]; then
+          if [ ${1} ]; then
+            PROJECT=$1
+            go_add $PROJECT
+            shift
+          else
+            usage
+            exit
+          fi
+        fi;;
+      *)
+        if [[ ${1} && ! ${2} ]]; then
+          PROJECT=$1
+          go_start $PROJECT
+          shift
+        else
+          if [ ${2} ]; then
+            echo "Unexpected argument: ${2}"
+          fi
+          usage
+          exit 1
+        fi
+    esac
+  done
 }
