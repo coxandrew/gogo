@@ -8,10 +8,9 @@ With Go, do away with the hassle of remembering where your project lives, firing
 
 Add the following to your `.bashrc` or `.bash_profile`:
 
-    source ~/.go/go
-    source ~/.go/projects
-
-The first line will add 'go' as a script and the second allows you to cd to any of your project directories without executing your initialization file.
+    source ~/.go/go        # adds to the 'go' script to your shell
+    source ~/.go/projects  # adds aliases for each of your projects
+    shopt -s cdable_vars   # set so that no '$' is required when cd'ing
 
 ## Usage
 
