@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# TODO
-# * Add a --help section
-
 DG_DIR="${HOME}/.go"
 PROJECTS_FILE="${DG_DIR}/projects"
 
-function usage() {
+function go_usage() {
   echo "
 Usage
 
   go <project>             # go to project
   go [-l|--list]           # list all projects
-  go [-a|--add] <project>  # add a new project at the current directory"
+  go [-a|--add] <project>  # add a new project at the current directory
+  go [-h|--help]           # show this help menu"
 }
 
 function go_add() {
@@ -70,24 +68,37 @@ function go_start() {
   fi
 }
 
+function standalone_option() {
+  local option=${1}
+
+  if [ "${1:1:0}" != "-" ]; then
+    if [ ! ${2} ]; then
+      case $option in
+        --list | -l )
+          go_list
+          ;;
+        --help | -h )
+          go_usage
+          ;;
+      esac
+    else
+      echo "Unexpected argument: ${2}"
+      go_usage
+      exit
+    fi
+  fi
+}
+
 function go() {
   PROJECT=""
   if [ ! ${1} ]; then
-    usage
+    go_usage
   fi
   until [ -z "$1" ]; do
     case $1 in
-      --list | -l )
-        shift
-        if [ "${1:1:0}" != "-" ]; then
-          if [ ! ${1} ]; then
-            go_list
-          else
-            echo "Unexpected argument: ${1}"
-            usage
-            exit
-          fi
-        fi;;
+      --list | -l | --help | -h )
+        standalone_option $*
+        shift;;
       --add | -a )
         shift
         if [ "${1:1:0}" != "-" ]; then
@@ -96,7 +107,7 @@ function go() {
             go_add $PROJECT
             shift
           else
-            usage
+            go_usage
             exit
           fi
         fi;;
@@ -109,7 +120,7 @@ function go() {
           if [ ${2} ]; then
             echo "Unexpected argument: ${2}"
           fi
-          usage
+          go_usage
           exit 1
         fi
     esac

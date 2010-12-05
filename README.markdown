@@ -27,6 +27,18 @@ Add the following to your `.bashrc` or `.bash_profile`:
 
     $ go --list
 
+### Go to a project directory
+
+    $ cd recycling    # once it has been added to your list, you'll have an alias to it
+
 ## Custom project initialization steps
 
 To customize what initialization steps your project performs, just create a `.gorc` file in your project's directory and this will be sourced after Go takes you to your project.
+
+## TODO
+
+* Make the list option prettier
+* Add a --delete option
+* Add AppleScript examples for:
+  * Opening a new Terminal tab and executing a command
+  * Opening a URL in a new browser window
