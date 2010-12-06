@@ -27,7 +27,12 @@ function go_list() {
 "
 
   if [[ -r "${PROJECTS_FILE}" ]]; then
-    cat ${PROJECTS_FILE}
+    local IFS=$'\n'
+    for line in $(cat "${DG_DIR}/projects"); do
+      IFS=$'='
+      local -a project=(${line})
+      echo `printf '%-20s' "${project[0]}"` "- ${project[1]}"
+    done
   else
     echo "You haven't added anything yet."
     return
@@ -37,18 +42,17 @@ function go_list() {
 function go_start() {
   local dir=''
   local project=''
-  if [[ ! -r "${DG_DIR}/projects" ]]; then
+  if [[ ! -r "${PROJECTS_FILE}" ]]; then
     echo "You haven't added anything yet."
     return
   fi
   local IFS=$'\n'
   for line in $(cat "${DG_DIR}/projects"); do
-    IFS=$'\t'
-    local -a line=(${line})
+    IFS=$'='
+    local -a project=(${line})
 
-    project=`echo ${line} | cut -d "=" -f 1`
-    if [[ "${project}" = "${PROJECT}" ]]; then
-      dir=`echo ${line} | cut -d "=" -f 2`
+    if [[ "${project[0]}" = "${PROJECT}" ]]; then
+      dir=${project[1]}
     fi
   done
 
