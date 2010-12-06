@@ -24,11 +24,20 @@ function go_add() {
 }
 
 function go_delete() {
-  sed "/^${PROJECT}=/d" ${PROJECTS_FILE} > /dev/null
+  local pattern="^${PROJECT}="
+
+  if [[ `cat ${PROJECTS_FILE} | grep "${pattern}"` ]]; then
+    sed -i ".bak" "/${pattern}/d" "${PROJECTS_FILE}"
+    echo "Deleted project: ${PROJECT}"
+  else
+    echo "No project named: ${PROJECT}"
+    go_list
+  fi
 }
 
 function go_list() {
-  echo "Listing projects ...
+  echo "
+Available projects:
 "
 
   if [[ -r "${PROJECTS_FILE}" ]]; then
