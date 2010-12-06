@@ -7,10 +7,11 @@ function go_usage() {
   echo "
 Usage
 
-  go <project>             # go to project
-  go [-l|--list]           # list all projects
-  go [-a|--add] <project>  # add a new project at the current directory
-  go [-h|--help]           # show this help menu"
+  go <project>                # go to project
+  go [-l|--list]              # list all projects
+  go [-a|--add] <project>     # add a new project at the current directory
+  go [-d|--delete] <project>  # delete a project from the list
+  go [-h|--help]              # show this help menu"
 }
 
 function go_add() {
@@ -20,6 +21,10 @@ function go_add() {
   local dir="$(pwd -L)"
   echo "${PROJECT}"="${dir}" >> "${DG_DIR}/projects"
   echo "Added ${PROJECT} for ${dir}"
+}
+
+function go_delete() {
+  sed "/^${PROJECT}=/d" ${PROJECTS_FILE} > /dev/null
 }
 
 function go_list() {
@@ -72,6 +77,20 @@ function go_start() {
   fi
 }
 
+function argument_option() {
+  local option=${1}
+
+  if [ "${1:1:0}" != "-" ]; then
+    if [ ${2} ]; then
+      PROJECT=$2
+      go_add
+    else
+      go_usage
+      exit
+    fi
+  fi
+}
+
 function standalone_option() {
   local option=${1}
 
@@ -102,13 +121,16 @@ function go() {
     case $1 in
       --list | -l | --help | -h )
         standalone_option $*
-        shift;;
+        exit;;
       --add | -a )
+        argument_option $*
+        exit;;
+      --delete | -d )
         shift
         if [ "${1:1:0}" != "-" ]; then
           if [ ${1} ]; then
             PROJECT=$1
-            go_add $PROJECT
+            go_delete $PROJECT
             shift
           else
             go_usage
@@ -130,3 +152,5 @@ function go() {
     esac
   done
 }
+
+go $*
