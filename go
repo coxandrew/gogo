@@ -95,7 +95,6 @@ function argument_option() {
       go_add
     else
       go_usage
-      exit
     fi
   fi
 }
@@ -116,7 +115,6 @@ function standalone_option() {
     else
       echo "Unexpected argument: ${2}"
       go_usage
-      exit
     fi
   fi
 }
@@ -130,10 +128,10 @@ function go() {
     case $1 in
       --list | -l | --help | -h )
         standalone_option $*
-        exit;;
+        shift;;
       --add | -a )
         argument_option $*
-        exit;;
+        break;;
       --delete | -d )
         shift
         if [ "${1:1:0}" != "-" ]; then
@@ -143,7 +141,7 @@ function go() {
             shift
           else
             go_usage
-            exit
+            break
           fi
         fi;;
       *)
@@ -156,10 +154,8 @@ function go() {
             echo "Unexpected argument: ${2}"
           fi
           go_usage
-          exit 1
+          break
         fi
     esac
   done
 }
-
-go $*

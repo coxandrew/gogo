@@ -37,9 +37,8 @@ To customize what initialization steps your project performs, just create a `.go
 
 ## TODO
 
-* Add a --delete option
-* Replace project if one already exists of that name
 * Add AppleScript examples for:
   * Opening a new Terminal tab and executing a command
   * Opening a URL in a new browser window
+* Replace project if one already exists of that name
 * Add automated tests
