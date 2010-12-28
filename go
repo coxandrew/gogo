@@ -69,6 +69,7 @@ function go_start() {
       dir=${project[1]}
     fi
   done
+  unset IFS
 
   if [[ ! -n "${dir}" ]]; then
     echo "Couldn't find '${PROJECT}'"
@@ -78,7 +79,7 @@ function go_start() {
     echo "No such directory: ${dir}"
   fi
 
-  echo "Go go gadget ${PROJECT}!!"
+  echo "GO GO GADGET ${PROJECT}!!"
   cd "${dir}"
 
   if [[ -r .gorc ]]; then
