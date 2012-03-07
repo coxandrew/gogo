@@ -1,20 +1,20 @@
 #!/bin/bash
 
-DG_DIR="${HOME}/.do"
+DG_DIR="${HOME}/.gogo"
 PROJECTS_FILE="${DG_DIR}/projects"
 
-function do_usage() {
+function gogo_usage() {
   echo "
 Usage
 
-  do <project>                # go to project directory and execute the .dorc file
-  do [-l|--list]              # list all projects
-  do [-a|--add] <project>     # add a new project at the current directory
-  do [-d|--delete] <project>  # delete a project from the list
-  do [-h|--help]              # show this help menu"
+  gogo <project>                # go to project directory and execute the .gorc file
+  gogo [-l|--list]              # list all projects
+  gogo [-a|--add] <project>     # add a new project at the current directory
+  gogo [-d|--delete] <project>  # delete a project from the list
+  gogo [-h|--help]              # show this help menu"
 }
 
-function do_add() {
+function gogo_add() {
   if [[ ! -d "${DG_DIR}" ]]; then
     mkdir -p "${DG_DIR}"
   fi
@@ -23,7 +23,7 @@ function do_add() {
   echo "Added ${PROJECT} for ${dir}"
 }
 
-function do_delete() {
+function gogo_delete() {
   local pattern="^${PROJECT}="
 
   if [[ `cat ${PROJECTS_FILE} | grep "${pattern}"` ]]; then
@@ -31,11 +31,11 @@ function do_delete() {
     echo "Deleted project: ${PROJECT}"
   else
     echo "No project named: ${PROJECT}"
-    do_list
+    gogo_list
   fi
 }
 
-function do_list() {
+function gogo_list() {
   echo "
 Available projects:
 "
@@ -53,7 +53,7 @@ Available projects:
   fi
 }
 
-function do_start() {
+function gogo_start() {
   local dir=''
   local project=''
   if [[ ! -r "${PROJECTS_FILE}" ]]; then
@@ -82,8 +82,8 @@ function do_start() {
   echo "Launching ... ${PROJECT}!!"
   cd "${dir}"
 
-  if [[ -r .dorc ]]; then
-    source .dorc
+  if [[ -r .gorc ]]; then
+    source .gorc
   fi
 }
 
@@ -93,9 +93,9 @@ function argument_option() {
   if [ "${1:1:0}" != "-" ]; then
     if [ ${2} ]; then
       PROJECT=$2
-      do_add
+      gogo_add
     else
-      do_usage
+      gogo_usage
     fi
   fi
 }
@@ -107,23 +107,23 @@ function standalone_option() {
     if [ ! ${2} ]; then
       case $option in
         --list | -l )
-          do_list
+          gogo_list
           ;;
         --help | -h )
-          do_usage
+          gogo_usage
           ;;
       esac
     else
       echo "Unexpected argument: ${2}"
-      do_usage
+      gogo_usage
     fi
   fi
 }
 
-function do() {
+function gogo() {
   PROJECT=""
   if [ ! ${1} ]; then
-    do_usage
+    gogo_usage
   fi
   until [ -z "$1" ]; do
     case $1 in
@@ -138,23 +138,23 @@ function do() {
         if [ "${1:1:0}" != "-" ]; then
           if [ ${1} ]; then
             PROJECT=$1
-            do_delete $PROJECT
+            gogo_delete $PROJECT
             shift
           else
-            do_usage
+            gogo_usage
             break
           fi
         fi;;
       *)
         if [[ ${1} && ! ${2} ]]; then
           PROJECT=$1
-          do_start $PROJECT
+          gogo_start $PROJECT
           shift
         else
           if [ ${2} ]; then
             echo "Unexpected argument: ${2}"
           fi
-          do_usage
+          gogo_usage
           break
         fi
     esac
