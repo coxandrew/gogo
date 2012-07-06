@@ -1,6 +1,6 @@
 ## Overview
 
-Go is a simple bash script that allows you to quickly launch and initialize a project 
+GoGo is a simple bash script that allows you to quickly launch and initialize a project 
 so you can start working immediately.
 
 With GoGo, do away with the hassle of remembering where your project lives, firing up 
@@ -11,7 +11,6 @@ your text editor, opening a browser, etc.
 Add the following to your `.bashrc` or `.bash_profile`:
 
 	. ~/.gogo/gogo
-	. ~/.gogo/projects
 	if [ -f ~/.gogo/projects ]; then
 	    . ~/.gogo/projects
 	fi
